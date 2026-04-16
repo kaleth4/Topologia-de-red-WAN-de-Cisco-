@@ -1,0 +1,103 @@
+! ============================================================
+! CONFIGURACIÓN ISR-WAN-1 (Router Primario)
+! ============================================================
+! Router: Cisco ISR 4331
+! Rol: WAN Gateway Primario
+! HSRP: VIP 10.0.0.3 (Activo)
+! ============================================================
+
+enable
+configure terminal
+hostname ISR-WAN-1
+
+! Desactivar búsqueda DNS
+no ip domain-lookup
+
+! ============================================================
+! INTERFAZ WAN - Conexión a ISP1
+! ============================================================
+interface GigabitEthernet0/0
+ description Enlace WAN a ISP1
+ ip address 200.1.1.2 255.255.255.252
+ ip nat outside
+ no shutdown
+
+! ============================================================
+! INTERFAZ LAN - Conexión a Core
+! ============================================================
+interface GigabitEthernet0/1
+ description Enlace LAN a CORE-SW-1
+ ip address 10.0.0.1 255.255.255.252
+ ip nat inside
+ standby version 2
+ standby 1 ip 10.0.0.3
+ standby 1 priority 110
+ standby 1 preempt
+ no shutdown
+
+! ============================================================
+! CONFIGURACIÓN HSRP
+! ============================================================
+! HSRP Group 1: VIP 10.0.0.3
+! Priority 110 (mayor que ISR-WAN-2 con 100)
+! Preempt activado para tomar control al iniciar
+
+! ============================================================
+! RUTAS ESTÁTICAS
+! ============================================================
+! Ruta por defecto a ISP1
+ip route 0.0.0.0 0.0.0.0 200.1.1.1
+
+! Rutas a las subredes internas via HSRP VIP
+ip route 192.168.10.0 255.255.255.128 10.0.0.3
+ip route 192.168.20.0 255.255.255.128 10.0.0.3
+ip route 192.168.30.0 255.255.255.128 10.0.0.3
+ip route 192.168.40.0 255.255.255.128 10.0.0.3
+ip route 192.168.50.0 255.255.255.128 10.0.0.3
+ip route 192.168.60.0 255.255.255.128 10.0.0.3
+ip route 10.0.99.0 255.255.255.0 10.0.0.3
+
+! ============================================================
+! NAT - Network Address Translation
+! ============================================================
+! Lista de acceso para NAT
+access-list 1 permit 192.168.10.0 0.0.0.127
+access-list 1 permit 192.168.20.0 0.0.0.127
+access-list 1 permit 192.168.30.0 0.0.0.127
+access-list 1 permit 192.168.40.0 0.0.0.127
+access-list 1 permit 192.168.50.0 0.0.0.127
+access-list 1 permit 192.168.60.0 0.0.0.127
+access-list 1 permit 10.0.99.0 0.0.0.255
+
+! Configuración NAT Overload (PAT)
+ip nat inside source list 1 interface GigabitEthernet0/0 overload
+
+! ============================================================
+! CONFIGURACIÓN SSH (Opcional - Seguridad)
+! ============================================================
+ip domain-name wan.lab
+username admin privilege 15 secret admin123
+enable secret enable123
+
+crypto key generate rsa
+  1024
+
+line vty 0 4
+ login local
+ transport input ssh
+
+! ============================================================
+! GUARDAR CONFIGURACIÓN
+! ============================================================
+end
+write memory
+
+! ============================================================
+! COMANDOS DE VERIFICACIÓN
+! ============================================================
+! show standby brief              - Ver estado HSRP
+! show ip interface brief         - Ver interfaces
+! show ip route                   - Ver tabla de rutas
+! show ip nat translations        - Ver traducciones NAT
+! ping 200.1.1.1                  - Probar ISP1
+! ============================================================

@@ -1,0 +1,166 @@
+! ============================================================
+! CONFIGURACIÓN DIST-SW-A (Switch Distribución A)
+! ============================================================
+! Switch: Cisco Catalyst 2960-24TT
+! Rol: Distribución Zonas A, B, C
+! Features: Trunks, VLAN Access, PortFast
+! ============================================================
+
+enable
+configure terminal
+hostname DIST-SW-A
+
+! Desactivar búsqueda DNS
+no ip domain-lookup
+
+! ============================================================
+! VLANs
+! ============================================================
+vlan 10
+ name ZONA-A
+vlan 20
+ name ZONA-B
+vlan 30
+ name ZONA-C
+vlan 99
+ name MGMT-DMZ
+vlan 100
+ name NATIVE-MGMT
+
+! ============================================================
+! TRUNKS A CORE (Dual Uplink para redundancia)
+! ============================================================
+! Trunk primario a CORE-SW-1
+interface FastEthernet0/1
+ description Trunk a CORE-SW-1
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,99,100
+ switchport trunk native vlan 100
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ no shutdown
+
+! Trunk secundario a CORE-SW-2
+interface FastEthernet0/2
+ description Trunk a CORE-SW-2
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,99,100
+ switchport trunk native vlan 100
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ no shutdown
+
+! ============================================================
+! PUERTOS DE ACCESO - ACCESS POINTS
+! ============================================================
+
+! AP-1 - ZONA A (17 laptops) - Canal Wi-Fi 1
+interface FastEthernet0/3
+ description AP-1 ZONA-A Canal-1
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! AP-2 - ZONA B (17 laptops) - Canal Wi-Fi 6
+interface FastEthernet0/4
+ description AP-2 ZONA-B Canal-6
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! AP-3 - ZONA C (17 laptops) - Canal Wi-Fi 11
+interface FastEthernet0/5
+ description AP-3 ZONA-C Canal-11
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! ============================================================
+! PUERTOS PARA PCs CON CABLE (Backup/Directo)
+! ============================================================
+! VLAN 10 - ZONA A
+interface range FastEthernet0/6 - 8
+ description PCs ZONA-A
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! VLAN 20 - ZONA B
+interface range FastEthernet0/9 - 11
+ description PCs ZONA-B
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! VLAN 30 - ZONA C
+interface range FastEthernet0/12 - 14
+ description PCs ZONA-C
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! Puerto de gestión
+interface FastEthernet0/24
+ description Puerto MGMT
+ switchport mode access
+ switchport access vlan 99
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+
+! ============================================================
+! SPANNING TREE
+! ============================================================
+spanning-tree mode rapid-pvst
+! Distribución tiene prioridad más alta que core
+spanning-tree vlan 10,20,30 priority 32768
+
+! ============================================================
+! INTERFACE VLAN PARA GESTIÓN
+! ============================================================
+interface Vlan99
+ description Interfaz de Gestion
+ ip address 10.0.99.20 255.255.255.0
+ no shutdown
+
+! Gateway por defecto
+ip default-gateway 10.0.99.1
+
+! ============================================================
+! CONFIGURACIÓN SSH
+! ============================================================
+ip domain-name wan.lab
+username admin privilege 15 secret admin123
+crypto key generate rsa
+  1024
+
+line vty 0 15
+ login local
+ transport input ssh
+
+! ============================================================
+! GUARDAR CONFIGURACIÓN
+! ============================================================
+end
+write memory
+
+! ============================================================
+! COMANDOS DE VERIFICACIÓN
+! ============================================================
+! show vlan brief                 - Ver VLANs
+! show interfaces trunk           - Ver trunks
+! show spanning-tree              - Ver STP
+! show mac address-table          - Ver tabla MAC
+! ============================================================
