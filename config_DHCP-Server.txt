@@ -1,0 +1,242 @@
+! ============================================================
+! CONFIGURACIÓN SERVIDOR DHCP/DNS
+! ============================================================
+! Dispositivo: Server-PT
+! IP: 10.0.99.10/24
+! Gateway: 10.0.99.1
+! ============================================================
+! NOTA: Esta configuración es para el servidor en Packet Tracer
+! En Packet Tracer, usar la interfaz gráfica del servidor
+! ============================================================
+
+! ============================================================
+! CONFIGURACIÓN IP DEL SERVIDOR
+! ============================================================
+! Abrir el servidor en Packet Tracer:
+! Desktop Tab -> IP Configuration
+!   IP Address: 10.0.99.10
+!   Subnet Mask: 255.255.255.0
+!   Default Gateway: 10.0.99.1
+!   DNS Server: 10.0.99.10 (auto-referencia)
+
+! ============================================================
+! SERVICIO DHCP - CONFIGURACIÓN GUI
+! ============================================================
+! Services Tab -> DHCP
+!
+! Hacer clic en "On" para activar el servicio
+!
+! --- Pool 1: ZONA-A (VLAN 10) ---
+! Service: On
+! Pool Name: ZONA-A
+! Default Gateway: 192.168.10.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.10.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! WINS Server: (dejar vacío)
+! TFTP Server: (dejar vacío)
+! Click "Add"
+!
+! --- Pool 2: ZONA-B (VLAN 20) ---
+! Service: On
+! Pool Name: ZONA-B
+! Default Gateway: 192.168.20.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.20.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! Click "Add"
+!
+! --- Pool 3: ZONA-C (VLAN 30) ---
+! Service: On
+! Pool Name: ZONA-C
+! Default Gateway: 192.168.30.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.30.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! Click "Add"
+!
+! --- Pool 4: ZONA-D (VLAN 40) ---
+! Service: On
+! Pool Name: ZONA-D
+! Default Gateway: 192.168.40.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.40.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! Click "Add"
+!
+! --- Pool 5: ZONA-E (VLAN 50) ---
+! Service: On
+! Pool Name: ZONA-E
+! Default Gateway: 192.168.50.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.50.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! Click "Add"
+!
+! --- Pool 6: ZONA-F (VLAN 60) ---
+! Service: On
+! Pool Name: ZONA-F
+! Default Gateway: 192.168.60.1
+! DNS Server: 10.0.99.10
+! Start IP: 192.168.60.10
+! Subnet Mask: 255.255.255.128
+! Max Users: 100
+! Click "Add"
+!
+! --- Pool 7: MGMT (VLAN 99) ---
+! Service: On
+! Pool Name: MGMT
+! Default Gateway: 10.0.99.1
+! DNS Server: 10.0.99.10
+! Start IP: 10.0.99.30
+! Subnet Mask: 255.255.255.0
+! Max Users: 50
+! Click "Add"
+
+! ============================================================
+! SERVICIO DNS - CONFIGURACIÓN GUI
+! ============================================================
+! Services Tab -> DNS
+!
+! Service: On
+!
+! --- Registros DNS ---
+! Name: router-wan.lab
+! Type: A Record
+! Address: 10.0.0.3
+! Click "Add"
+!
+! Name: core-sw1.lab
+! Type: A Record
+! Address: 10.0.99.2
+! Click "Add"
+!
+! Name: core-sw2.lab
+! Type: A Record
+! Address: 10.0.99.3
+! Click "Add"
+!
+! Name: dhcp-server.lab
+! Type: A Record
+! Address: 10.0.99.10
+! Click "Add"
+!
+! --- DNS Forwarder (opcional) ---
+! DNS Service: On
+! External DNS Server: 8.8.8.8
+
+! ============================================================
+! TABLA RESUMEN DE POOLS DHCP
+! ============================================================
+! Pool       VLAN  Gateway         Red              Rango IP
+! ---------- ----- --------------- ---------------- ------------------
+! ZONA-A     10    192.168.10.1    192.168.10.0/25  192.168.10.10-126
+! ZONA-B     20    192.168.20.1    192.168.20.0/25  192.168.20.10-126
+! ZONA-C     30    192.168.30.1    192.168.30.0/25  192.168.30.10-126
+! ZONA-D     40    192.168.40.1    192.168.40.0/25  192.168.40.10-126
+! ZONA-E     50    192.168.50.1    192.168.50.0/25  192.168.50.10-126
+! ZONA-F     60    192.168.60.1    192.168.60.0/25  192.168.60.10-126
+! MGMT       99    10.0.99.1       10.0.99.0/24     10.0.99.30-254
+
+! ============================================================
+! CONFIGURACIÓN DE LOS 100 LAPTOPS
+! ============================================================
+! Para cada laptop en Packet Tracer:
+! 1. Arrastrar laptop al área de trabajo
+! 2. Conectar a Access Point correspondiente (inalámbrico)
+!    o a puerto de switch (cableado)
+! 3. Abrir laptop -> Desktop -> PC Wireless
+! 4. En "Wireless" tab:
+!    - SSID: ZONA-A (o la correspondiente)
+!    - Authentication: WPA2-Personal
+!    - Password: (configurar en el AP)
+! 5. En "Config" tab -> GLOBAL -> Settings:
+!    - DHCP: Seleccionar "DHCP" (no Static)
+! 6. Verificar IP asignada en Desktop -> IP Configuration
+!
+! Distribución de laptops por zona:
+! ZONA-A (AP1): Laptops 1-17    (17 laptops)
+! ZONA-B (AP2): Laptops 18-34   (17 laptops)
+! ZONA-C (AP3): Laptops 35-51   (17 laptops)
+! ZONA-D (AP4): Laptops 52-68   (17 laptops)
+! ZONA-E (AP5): Laptops 69-83   (15 laptops)
+! ZONA-F (AP6): Laptops 84-100  (17 laptops)
+! Total: 100 laptops
+
+! ============================================================
+! CONFIGURACIÓN ACCESS POINTS WRT300N
+! ============================================================
+! Para cada AP en Packet Tracer:
+! 1. Conectar a puerto de switch de distribución
+! 2. Abrir AP -> GUI
+! 3. Setup -> Basic Setup:
+!    - Configuration View: Manual
+!    - Network Setup:
+!      * IP Address: (según VLAN)
+!        AP1: 192.168.10.2
+!        AP2: 192.168.20.2
+!        AP3: 192.168.30.2
+!        AP4: 192.168.40.2
+!        AP5: 192.168.50.2
+!        AP6: 192.168.60.2
+!      * Subnet Mask: 255.255.255.128
+!      * Default Gateway: (IP de VLAN)
+!        AP1: 192.168.10.1
+!        AP2: 192.168.20.1
+!        ...
+!    - DHCP Server: Disable (usar servidor central)
+!
+! 4. Wireless -> Basic Wireless Settings:
+!    - Wireless Configuration: Manual
+!    - Network Mode: Mixed
+!    - Network Name (SSID): ZONA-A (o la correspondiente)
+!    - Channel: (ver tabla abajo)
+!    - Click "Save Settings"
+!
+! 5. Wireless -> Wireless Security:
+!    - Security Mode: WPA2 Personal
+!    - Encryption: AES
+!    - Passphrase: (contraseña segura)
+!    - Click "Save Settings"
+!
+! --- CANALES WIFI (Evitar solapamiento) ---
+! AP   Zona    Canal   Frecuencia
+! ---  ------  -----   -----------
+! AP1  ZONA-A    1    2.412 GHz
+! AP2  ZONA-B    6    2.437 GHz
+! AP3  ZONA-C   11    2.462 GHz
+! AP4  ZONA-D    1    2.412 GHz
+! AP5  ZONA-E    6    2.437 GHz
+! AP6  ZONA-F   11    2.462 GHz
+!
+! Nota: Los canales 1, 6 y 11 son los únicos que no se solapan
+! en la banda de 2.4 GHz
+
+! ============================================================
+! VERIFICACIÓN DE LA IMPLEMENTACIÓN
+! ============================================================
+! En cualquier laptop:
+! Desktop -> Command Prompt
+!
+! 1. Verificar IP asignada:
+!    ipconfig
+!
+! 2. Probar conectividad a gateway:
+!    ping 192.168.XX.1 (donde XX es la VLAN)
+!
+! 3. Probar conectividad entre VLANs:
+!    ping 192.168.YY.1 (otra VLAN)
+!
+! 4. Probar resolución DNS:
+!    ping dhcp-server.lab
+!
+! 5. Probar conectividad a Internet:
+!    ping 8.8.8.8
+!
+! 6. Verificar tabla ARP:
+!    arp -a
